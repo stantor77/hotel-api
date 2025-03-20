@@ -1,0 +1,40 @@
+from fastapi import Query, Path, APIRouter, Body
+from fastapi import HTTPException
+from schemas.hotels import Hotel, HotelPatch # ИМПОРТ СХЕМ
+
+router = APIRouter(prefix="/hotels", tags=["Отели"]) # создаем роутер, prefix - значение маршрута по умолчанию
+# tags - название наших ручек
+
+hotels = [
+     {"id": 1, "title": "Sochi", "name": "sochi"},
+     {"id": 2, "title": "Дубай", "name": "dubai"},
+     {"id": 3, "title": "Мальдивы", "name": "maldivi"},
+     {"id": 4, "title": "Геленджик", "name": "gelendzhik"},
+     {"id": 5, "title": "Москва", "name": "moscow"},
+     {"id": 6, "title": "Казань", "name": "kazan"},
+     {"id": 7, "title": "Санкт-Петербург", "name": "spb"},
+ ]
+
+@router.get("",  response_model=list[dict]) # Работа с выходными данными # 1 способ
+def get_hotels(
+        id: int | None = Query(None, description="Айдишник"),
+        title: str | None = Query(None, description="Название отеля"),
+        page: int  = Query(1, description="Номер страницы"),
+        per_page: int  = Query(3, description="Часть страницы"),
+
+):
+    print("Запрос получен!")
+    hotels_ = []
+    for hotel in hotels:
+        if id and hotel["id"] != id:
+            continue
+        if title and hotel["title"] != title:
+            continue
+        hotels_.append(hotel)
+
+    # Пагинация
+    start = (page - 1) * per_page
+    end = start + per_page
+    hotels_ = hotels_[start:end]
+    
+    return hotels_
